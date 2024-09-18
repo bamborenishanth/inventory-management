@@ -56,13 +56,14 @@ namespace Product.Inventory.Api
 			{
 				dbContext.Products.Add(new Product
 				{
-					Name = "Sample Product",
-					Description = "This is a sample product.",
+					Name = "T-Shirt",
+					Description = "This is a solid T-Shirt.",
 					Price = 9.99m,
 					Quantity = 100,
-					StockAvailable = true
+					StockAvailable = true,
+					Category = "Apparel",
+					Rating = 4.0m,
 				});
-
 				dbContext.SaveChanges();
 			}
 		}
