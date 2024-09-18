@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using System.Net;
+
 namespace Product.Inventory.Api
 {
 	public class Program
@@ -12,8 +16,11 @@ namespace Product.Inventory.Api
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-
+			builder.Services.AddDbContext<ProductContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("InventoryDatabase")));
+			builder.Services.AddScoped<IProductService, ProductService>();
 			var app = builder.Build();
+
+			ApplyMigrationsAndSeedData(app);
 
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
@@ -25,11 +32,41 @@ namespace Product.Inventory.Api
 			app.UseHttpsRedirection();
 
 			app.UseAuthorization();
-
-
 			app.MapControllers();
-
 			app.Run();
 		}
+
+		private static void ApplyMigrationsAndSeedData(WebApplication app)
+		{
+			using (var scope = app.Services.CreateScope())
+			{
+				var dbContext = scope.ServiceProvider.GetRequiredService<ProductContext>();
+
+				// Apply migrations
+				dbContext.Database.Migrate();
+
+				// Seed data
+				SeedInitialData(dbContext);
+			}
+		}
+
+		private static void SeedInitialData(ProductContext dbContext)
+		{
+			if (!dbContext.Products.Any())
+			{
+				dbContext.Products.Add(new Product
+				{
+					Name = "Sample Product",
+					Description = "This is a sample product.",
+					Price = 9.99m,
+					Quantity = 100,
+					StockAvailable = true
+				});
+
+				dbContext.SaveChanges();
+			}
+		}
+
+
 	}
 }
