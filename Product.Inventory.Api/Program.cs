@@ -18,6 +18,7 @@ namespace Product.Inventory.Api
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddDbContext<ProductContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("InventoryDatabase")));
 			builder.Services.AddScoped<IProductService, ProductService>();
+			//builder.Services.AddScoped<ProductRepository>();
 			var app = builder.Build();
 
 			ApplyMigrationsAndSeedData(app);
