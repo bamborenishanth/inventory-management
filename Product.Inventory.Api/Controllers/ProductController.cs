@@ -5,7 +5,7 @@ namespace Product.Inventory.Api
 	[Route("api/products")]
 	[ApiController]
 	[ApiVersion("1.0")]
-	public class ProductController : ControllerBase, IDisposable
+	public class ProductController : ControllerBase
 	{
 		private readonly IProductService _productService;
 		private bool _disposed = false; // Flag to check whether the object is already disposed
@@ -124,30 +124,6 @@ namespace Product.Inventory.Api
 			}
 
 			return StatusCode(500, "A problem occurred while updating the quantity of the product.");
-		}
-
-		// Dispose pattern is not really required to implement here since ProductService is injected to DI container and it'll be responsible for disposing this object when required
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposed)
-			{
-				if (disposing)
-				{
-					if (_productService is IDisposable service)
-					{
-						service.Dispose();
-					}
-				}
-
-
-				_disposed = true;
-			}
 		}
 	}
 }

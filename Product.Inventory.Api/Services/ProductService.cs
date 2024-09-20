@@ -4,7 +4,7 @@ using System;
 
 namespace Product.Inventory.Api
 {
-	public class ProductService : IProductService, IDisposable
+	public class ProductService : IProductService
 	{
 		private readonly IProductRepository _productRepository;
 		private readonly IMapper _mapper;
@@ -60,28 +60,6 @@ namespace Product.Inventory.Api
 		public async Task<bool> DeleteProduct(int productId)
 		{
 			return await _productRepository.DeleteByIdAsync(productId);
-		}
-
-		// Dispose pattern is not really required to implement here since ProductRespository is injected to DI container and it'll be responsible for disposing this object when required
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_disposed)
-			{
-				if (disposing)
-				{
-					if (_productRepository is IDisposable disposableRepo)
-					{
-						disposableRepo.Dispose();
-					}
-				}
-				_disposed = true;
-			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
 		}
 	}
 }
