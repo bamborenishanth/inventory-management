@@ -35,7 +35,7 @@ namespace Product.Inventory.Api
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, $"Error occurred fetching the product with ID: {productId}.");
+				_logger.LogError(ex, $"Error occurred while fetching the product with id-{productId}.");
 				return null;
 			}
 		}
@@ -75,7 +75,7 @@ namespace Product.Inventory.Api
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, $"Error occurred while updating the product with ID: {productId}.");
+				_logger.LogError(ex, $"Error occurred while updating the product with id-{productId}.");
 				return null;
 			}
 		}
@@ -96,7 +96,7 @@ namespace Product.Inventory.Api
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, $"Error occurred while deleting the product with ID: {productId}.");
+				_logger.LogError(ex, $"Error occurred while deleting the product with id-{productId}.");
 				return false;
 			}
 		}

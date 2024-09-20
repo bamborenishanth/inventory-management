@@ -63,7 +63,7 @@ namespace Product.Inventory.Api
 			Product existingProduct = await _productService.GetProductById(productId);
 			if (existingProduct == null)
 			{
-				return NotFound("Invalid Product Id. There's no product with this id");
+				return NotFound($"Invalid Product Id. There's no product with this id-{productId}");
 			}
 
 			Product updatedProduct = await _productService.UpdateProduct(productId, productDto);
@@ -84,7 +84,7 @@ namespace Product.Inventory.Api
 			{
 				return Ok("Product deleted successfully");
 			}
-			return NotFound("Invalid Product Id. There's no product with this id");
+			return NotFound($"Invalid Product Id. There's no product with this id-{productId}");
 		}
 
 		[HttpPut("add-to-stock/{productId}/{quantity}")]
@@ -106,7 +106,7 @@ namespace Product.Inventory.Api
 			Product product = await _productService.GetProductById(productId);
 			if (product == null)
 			{
-				return NotFound("Invalid Product Id. There's no product with this id");
+				return NotFound($"Invalid Product Id. There's no product with this id-{productId}");
 			}
 
 			Product updatedProduct = await _productService.UpdateStock(productId, quantity, addStock);
