@@ -30,6 +30,10 @@ namespace Product.Inventory.Api
 			modelBuilder.Entity<Product>()
 				.Property(p => p.Name)
 				.IsRequired()
+				.HasMaxLength(20);
+
+			modelBuilder.Entity<Product>()
+				.Property(p => p.Description)
 				.HasMaxLength(100);
 
 			modelBuilder.Entity<Product>()
@@ -37,16 +41,11 @@ namespace Product.Inventory.Api
 				.HasDefaultValue(1);
 
 			modelBuilder.Entity<Product>()
-				.Property(p => p.StockAvailable)
-				.HasDefaultValue(true);
+				.HasCheckConstraint("CK_Product_Quantity_NonNegative", "Quantity >= 0");
 
 			modelBuilder.Entity<Product>()
 				.Property(p => p.Price)
-				.HasColumnType("decimal(18,2)");
-
-			modelBuilder.Entity<Product>()
-				.Property(p => p.LastTimeUpdated)
-				.HasDefaultValue(DateTime.Now);
+				.HasColumnType("decimal(10,2)");
 		}
 	}
 

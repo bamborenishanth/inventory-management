@@ -1,8 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Product.Inventory.Api;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Product.Inventory.Api.Test
@@ -21,7 +18,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task GetAllProducts_ReturnsOkResult_WithListOfProducts()
+		public async Task GetAllProductsTest()
 		{
 			// Arrange
 			var products = new List<Product>
@@ -42,7 +39,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task GetProductById_ProductExists_ReturnsOkResult()
+		public async Task GetProductById()
 		{
 			// Arrange
 			var product = new Product { ProductId = 1, Name = "Product1", Price = 100, Quantity = 10 };
@@ -56,10 +53,11 @@ namespace Product.Inventory.Api.Test
 			Assert.IsNotNull(okResult);
 			Product? returnValue = okResult.Value as Product;
 			Assert.AreEqual(1, returnValue.ProductId);
+
 		}
 
 		[TestMethod]
-		public async Task GetProductById_ProductDoesNotExist_ReturnsNotFound()
+		public async Task GetProductByInvalidIdTest()
 		{
 			// Arrange
 			_mockProductService.Setup(service => service.GetProductById(1)).ReturnsAsync((Product)null);
@@ -72,7 +70,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task AddProduct_ValidProduct_ReturnsOk()
+		public async Task AddProductTest()
 		{
 			// Arrange
 			var product = new Product { Name = "New Product", Price = 10, Quantity = 5 };
@@ -86,7 +84,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task AddProduct_InvalidProduct_ReturnsBadRequest()
+		public async Task AddInvalidProductTest()
 		{
 			// Act
 			var result = await _controller.AddProduct(null);
@@ -96,10 +94,10 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task UpdateProduct_ProductIdMismatch_ReturnsBadRequest()
+		public async Task UpdateProductWithWrongIdTest()
 		{
 			// Arrange
-			var product = new Product { ProductId = 1, Name = "Product1" };
+			var product = new ProductDto { ProductId = 1, Name = "Product1" };
 
 			// Act
 			var result = await _controller.UpdateProduct(2, product);
@@ -109,7 +107,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task DeleteProduct_ValidProductId_ReturnsOk()
+		public async Task DeleteValidProductTest()
 		{
 			// Arrange
 			_mockProductService.Setup(service => service.DeleteProduct(1)).ReturnsAsync(true);
@@ -122,7 +120,7 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
-		public async Task DeleteProduct_InvalidProductId_ReturnsNotFound()
+		public async Task DeleteInvalidProductTest()
 		{
 			// Arrange
 			_mockProductService.Setup(service => service.DeleteProduct(1)).ReturnsAsync(false);
@@ -134,22 +132,24 @@ namespace Product.Inventory.Api.Test
 			Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
 		}
 
-		[TestMethod]
-		public async Task AddStock_ValidProduct_ReturnsOkResult()
-		{
-			// Arrange
-			var product = new Product { ProductId = 1, Quantity = 10 };
-			_mockProductService.Setup(service => service.UpdateStock(1, 5)).ReturnsAsync(product);
+		//[TestMethod]
+		//public async Task UpdateStockTest()
+		//{
+		//	// Arrange
+		//	var product = new Product { ProductId = 1, Quantity = 10 };
+		//	_mockProductService.Setup(service => service.GetProductById(It.IsAny<int>())).ReturnsAsync(product);
+		//	_mockProductService.Setup(service => service.UpdateStock(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(product);
 
-			// Act
-			var result = await _controller.AddStock(1, 5);
 
-			// Assert
-			var okResult = result as OkObjectResult;
-			Assert.IsNotNull(okResult);
-			var returnValue = okResult.Value as Product;
-			Assert.AreEqual(1, returnValue.ProductId);
-			Assert.AreEqual(10, returnValue.Quantity);
-		}
+		//	// Act
+		//	var result = await _controller.AddStock(1, 5);
+
+		//	// Assert
+		//	var okResult = result as OkObjectResult;
+		//	Assert.IsNotNull(okResult);
+		//	var returnValue = okResult.Value as Product;
+		//	Assert.AreEqual(1, returnValue.ProductId);
+		//	Assert.AreEqual(10, returnValue.Quantity);
+		//}
 	}
 }

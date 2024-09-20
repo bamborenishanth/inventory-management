@@ -1,64 +1,87 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Product.Inventory.Api
 {
-	public class ProductService : IProductService
+	public class ProductService : IProductService, IDisposable
 	{
-		private readonly ProductContext _context;
+		private readonly IProductRepository _productRepository;
+		private readonly IMapper _mapper;
+		private bool _disposed = false; // To detect redundant calls
 
-		public ProductService(ProductContext context)
+		public ProductService(IProductRepository productRepository, IMapper mapper)
 		{
-			_context = context;
+			_productRepository = productRepository;
+			_mapper = mapper;
 		}
 
 		public async Task<List<Product>> GetAllProducts()
 		{
-			return await _context.Products.ToListAsync().ConfigureAwait(false);
+			List<Product> products = await _productRepository.GetAllAsync().ConfigureAwait(false);
+
+			return products;
 		}
 
-		public async Task<Product> GetProductById(int productId) => await _context.Products.FindAsync(productId).ConfigureAwait(false);
+		public async Task<Product> GetProductById(int productId)
+		{
+			return await _productRepository.GetByIdAsync(productId);
+		}
 
 		public async Task<bool> AddProduct(Product product)
 		{
-			_context.Products.Add(product);
-			int count = await _context.SaveChangesAsync().ConfigureAwait(false);
-			return count > 0;
+			return await _productRepository.AddAsync(product);
 		}
 
-		public async Task<bool> UpdateProduct(Product product)
+		public async Task<Product> UpdateProduct(int productId, ProductDto productDto)
 		{
-			_context.Products.Update(product);
-			int count = await _context.SaveChangesAsync().ConfigureAwait(false);
-			return count > 0;
+			Product existingProduct = await GetProductById(productId).ConfigureAwait(false);
+			if (existingProduct != null)
+			{
+				_mapper.Map(productDto, existingProduct);
+				Product product = await _productRepository.UpdateAsync(productId, existingProduct).ConfigureAwait(false);
+				return product;
+			}
+			return null;
+		}
 
+		public async Task<Product> UpdateStock(int productId, int quantity, bool addStock)
+		{
+			Product product = await GetProductById(productId).ConfigureAwait(false);
+			if (product != null)
+			{
+				product.Quantity = addStock ? product.Quantity + quantity : product.Quantity - quantity;
+				Product updatedProduct = await _productRepository.UpdateAsync(productId, product).ConfigureAwait(false);
+				return updatedProduct;
+			}
+			return null;
 		}
 
 		public async Task<bool> DeleteProduct(int productId)
 		{
-			var product = _context.Products.Find(productId);
-			if (product != null)
-			{
-				_context.Products.Remove(product);
-				int count = await _context.SaveChangesAsync().ConfigureAwait(false);
-				return count > 0;
-			}
-			return false;
-
-
+			return await _productRepository.DeleteByIdAsync(productId);
 		}
 
-		public async Task<Product> UpdateStock(int productId, int quantity)
+		// Dispose pattern is not really required to implement here since ProductRespository is injected to DI container and it'll be responsible for disposing this object when required
+		protected virtual void Dispose(bool disposing)
 		{
-			Product product = _context.Products.Find(productId);
-			if (product != null)
+			if (!_disposed)
 			{
-				product.Quantity = product.Quantity += quantity;
-				_context.Products.Update(product);
-				int count = await _context.SaveChangesAsync().ConfigureAwait(false);
+				if (disposing)
+				{
+					if (_productRepository is IDisposable disposableRepo)
+					{
+						disposableRepo.Dispose();
+					}
+				}
+				_disposed = true;
 			}
+		}
 
-			return product;
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
-
 }

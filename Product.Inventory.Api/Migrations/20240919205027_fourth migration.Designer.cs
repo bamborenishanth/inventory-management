@@ -12,8 +12,8 @@ using Product.Inventory.Api;
 namespace Product.Inventory.Api.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20240919100640_Initia Migration")]
-    partial class InitiaMigration
+    [Migration("20240919205027_fourth migration")]
+    partial class fourthmigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,20 +41,16 @@ namespace Product.Inventory.Api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastTimeUpdated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2024, 9, 19, 15, 36, 40, 139, DateTimeKind.Local).AddTicks(7575));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<decimal?>("Price")
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric(10,2)");
 
                     b.Property<int?>("Quantity")
                         .ValueGeneratedOnAdd()
@@ -64,14 +60,11 @@ namespace Product.Inventory.Api.Migrations
                     b.Property<decimal?>("Rating")
                         .HasColumnType("numeric");
 
-                    b.Property<bool?>("StockAvailable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
                     b.HasKey("ProductId");
 
                     b.ToTable("Products");
+
+                    b.HasCheckConstraint("CK_Product_Quantity_NonNegative", "Quantity >= 0");
                 });
 #pragma warning restore 612, 618
         }

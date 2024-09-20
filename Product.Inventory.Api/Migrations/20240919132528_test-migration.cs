@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Product.Inventory.Api.Migrations
 {
-    public partial class InitiaMigration : Migration
+    public partial class testmigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -27,8 +26,7 @@ namespace Product.Inventory.Api.Migrations
                     Quantity = table.Column<int>(type: "integer", nullable: true, defaultValue: 1),
                     StockAvailable = table.Column<bool>(type: "boolean", nullable: true, defaultValue: true),
                     Rating = table.Column<decimal>(type: "numeric", nullable: true),
-                    Category = table.Column<string>(type: "text", nullable: true),
-                    LastTimeUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2024, 9, 19, 15, 36, 40, 139, DateTimeKind.Local).AddTicks(7575))
+                    Category = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Product.Inventory.Api
 {
 	[Route("api/products")]
 	[ApiController]
 	[ApiVersion("1.0")]
-	public class ProductController : ControllerBase
+	public class ProductController : ControllerBase, IDisposable
 	{
 		private readonly IProductService _productService;
+		private bool _disposed = false; // Flag to check whether the object is already disposed
 
 		public ProductController(IProductService productService)
 		{
@@ -20,6 +20,12 @@ namespace Product.Inventory.Api
 		public async Task<IActionResult> GetAllProducts()
 		{
 			IEnumerable<Product> products = await _productService.GetAllProducts();
+
+			if (products == null)
+			{
+				return Ok(new List<Product>());
+			}
+
 			return Ok(products);
 		}
 
@@ -30,7 +36,7 @@ namespace Product.Inventory.Api
 			var product = await _productService.GetProductById(productId);
 			if (product == null)
 			{
-				return NotFound($"Product with {productId} doesn't exist");
+				return NotFound($"Product with id-{productId} doesn't exist");
 			}
 			return Ok(product);
 		}
@@ -54,28 +60,27 @@ namespace Product.Inventory.Api
 
 		[HttpPut("{productId}")]
 		[MapToApiVersion("1.0")]
-		public async Task<IActionResult> UpdateProduct(int productId, [FromBody] Product product)
+		public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductDto productDto)
 		{
-			if (product == null || productId != product.ProductId)
+			if (productDto == null || productId != productDto.ProductId)
 			{
 				return BadRequest("Product Id mismatch");
 			}
 
-			var existingProduct = await _productService.GetProductById(productId);
+			Product existingProduct = await _productService.GetProductById(productId);
 			if (existingProduct == null)
 			{
 				return NotFound("Invalid Product Id. There's no product with this id");
 			}
 
-			var result = await _productService.UpdateProduct(product);
-			if (result)
+			Product updatedProduct = await _productService.UpdateProduct(productId, productDto);
+			if (updatedProduct != null)
 			{
-				return Ok("Product updated successfully");
+				return Ok(updatedProduct);
 			}
 
 			return StatusCode(500, "A problem occurred while updating the product.");
 		}
-
 
 		[HttpDelete("{productId}")]
 		[MapToApiVersion("1.0")]
@@ -93,25 +98,56 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> AddStock(int productId, int quantity)
 		{
-			return await UpdateStock(productId, quantity).ConfigureAwait(false);
+			return await UpdateStock(productId, quantity, true).ConfigureAwait(false);
 		}
 
 		[HttpPut("decrement-stock/{productId}/{quantity}")]
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> DecrementStock(int productId, int quantity)
 		{
-			return await UpdateStock(productId, quantity).ConfigureAwait(false);
+			return await UpdateStock(productId, quantity, false).ConfigureAwait(false);
 		}
 
-		public async Task<IActionResult> UpdateStock(int id, int quantity)
+		private async Task<IActionResult> UpdateStock(int productId, int quantity, bool addStock)
 		{
-			var product = await _productService.UpdateStock(id, quantity);
+			Product product = await _productService.GetProductById(productId);
 			if (product == null)
 			{
 				return NotFound("Invalid Product Id. There's no product with this id");
 			}
-			return Ok(product);
+
+			Product updatedProduct = await _productService.UpdateStock(productId, quantity, addStock);
+
+			if (updatedProduct != null)
+			{
+				return Ok(updatedProduct);
+			}
+
+			return StatusCode(500, "A problem occurred while updating the quantity of the product.");
 		}
 
+		// Dispose pattern is not really required to implement here since ProductService is injected to DI container and it'll be responsible for disposing this object when required
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+					if (_productService is IDisposable service)
+					{
+						service.Dispose();
+					}
+				}
+
+
+				_disposed = true;
+			}
+		}
 	}
 }

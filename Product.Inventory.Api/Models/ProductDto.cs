@@ -2,7 +2,7 @@
 
 namespace Product.Inventory.Api
 {
-	public class Product
+	public class ProductDto
 	{
 		public int ProductId { get; set; }
 		public string Name { get; set; }

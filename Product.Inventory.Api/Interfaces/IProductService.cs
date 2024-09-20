@@ -10,11 +10,12 @@ namespace Product.Inventory.Api
 
 		public Task<bool> AddProduct(Product product);
 
-		public Task<bool> UpdateProduct(Product product);
+		public Task<Product> UpdateProduct(int productId, ProductDto productDto);
 
 		public Task<bool> DeleteProduct(int productId);
 
-		public Task<Product> UpdateStock(int productId, int quantity);
+		public Task<Product> UpdateStock(int productId, int quantity, bool addStock);
+
 
 	}
 }
