@@ -1,0 +1,205 @@
+{
+	"info": {
+		"_postman_id": "af9774b9-3f82-41a0-a140-e7433357fdcf",
+		"name": "Inventory Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27514122"
+	},
+	"item": [
+		{
+			"name": "GetAllProducts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{base_ulr}}"
+			},
+			"response": []
+		},
+		{
+			"name": "GetProductById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_ulr}}/100000",
+					"host": [
+						"{{base_ulr}}"
+					],
+					"path": [
+						"100000"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddProduct",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Test Product\",\r\n    \"description\": \"Test Description\",\r\n    \"price\": 350,\r\n    \"quantity\": 10,\r\n    \"rating\": 3,\r\n    \"category\": \"Test Category\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_ulr}}",
+					"host": [
+						"{{base_ulr}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateProduct",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"productId\": 100005,\r\n    \"name\": \"Test Product\",\r\n    \"description\": \"Test Description\",\r\n    \"price\": 350,\r\n    \"quantity\": 10,\r\n    \"rating\": 3,\r\n    \"category\": \"Test Category\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_ulr}}/100005",
+					"host": [
+						"{{base_ulr}}"
+					],
+					"path": [
+						"100005"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "IncreaseStock",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_ulr}}/add-to-stock/100000/1111",
+					"host": [
+						"{{base_ulr}}"
+					],
+					"path": [
+						"add-to-stock",
+						"100000",
+						"1111"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DecreaseStock",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"productId\": 100000,\r\n    \"name\": \"Test Product\",\r\n    \"description\": \"Test Description\",\r\n    \"price\": 350,\r\n    \"quantity\": 10,\r\n    \"rating\": 3,\r\n    \"category\": \"Test Category\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_ulr}}/decrement-stock/100000/1111",
+					"host": [
+						"{{base_ulr}}"
+					],
+					"path": [
+						"decrement-stock",
+						"100000",
+						"1111"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_ulr",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
