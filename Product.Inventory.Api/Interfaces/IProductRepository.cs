@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Product.Inventory.Api
+﻿namespace Product.Inventory.Api
 {
 	public interface IProductRepository
 	{

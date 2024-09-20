@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace Product.Inventory.Api
 {
@@ -8,7 +6,6 @@ namespace Product.Inventory.Api
 	{
 		private readonly IProductRepository _productRepository;
 		private readonly IMapper _mapper;
-		private bool _disposed = false; // To detect redundant calls
 
 		public ProductService(IProductRepository productRepository, IMapper mapper)
 		{

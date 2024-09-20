@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using System.Net;
 
 namespace Product.Inventory.Api
 {
@@ -12,24 +9,36 @@ namespace Product.Inventory.Api
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+			ConfigureLogging(builder);
+			ConfigureServices(builder);
+
+			var app = builder.Build();
+			ApplyMigrationsAndSeedData(app);
+
+			ConfigureMiddleware(app);
+			app.Run();
+		}
+
+		private static void ConfigureLogging(WebApplicationBuilder builder)
+		{
 			builder.Logging.ClearProviders();
 			builder.Logging.AddConsole();
+		}
 
-			// Add services to the container.
-
+		private static void ConfigureServices(WebApplicationBuilder builder)
+		{
 			builder.Services.AddControllers();
-			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-			builder.Services.AddDbContext<ProductContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("InventoryDatabase")));
+			builder.Services.AddDbContext<ProductContext>(options =>
+				options.UseNpgsql(builder.Configuration.GetConnectionString("InventoryDatabase")));
 			builder.Services.AddScoped<IProductService, ProductService>();
 			builder.Services.AddScoped<IProductRepository, ProductRepository>();
 			builder.Services.AddAutoMapper(typeof(Program));
-			var app = builder.Build();
+		}
 
-			ApplyMigrationsAndSeedData(app);
-
-			// Configure the HTTP request pipeline.
+		private static void ConfigureMiddleware(WebApplication app)
+		{
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
@@ -37,9 +46,7 @@ namespace Product.Inventory.Api
 			}
 
 			app.UseHttpsRedirection();
-			app.UseAuthorization();
 			app.MapControllers();
-			app.Run();
 		}
 
 		private static void ApplyMigrationsAndSeedData(WebApplication app)
@@ -50,6 +57,7 @@ namespace Product.Inventory.Api
 			using (var scope = app.Services.CreateScope())
 			{
 				var dbContext = scope.ServiceProvider.GetRequiredService<ProductContext>();
+
 				// Apply migrations
 				try
 				{
@@ -58,9 +66,9 @@ namespace Product.Inventory.Api
 				}
 				catch (Exception ex)
 				{
-					string message = $"Error while migrating the database, {ex.Message}";
-					_logger.LogInformation(message);
+					_logger.LogError($"Error while migrating the database: {ex.Message}");
 				}
+
 				// Seed data
 				SeedInitialData(dbContext);
 			}
@@ -83,15 +91,15 @@ namespace Product.Inventory.Api
 					});
 					dbContext.SaveChanges();
 					_logger.LogInformation("Database seeded with initial entry.");
-					return;
 				}
-
-				_logger.LogInformation("Database is already seeded.");
+				else
+				{
+					_logger.LogInformation("Database is already seeded.");
+				}
 			}
 			catch (Exception ex)
 			{
-				string message = $"Error while seeding the database, {ex.Message}";
-				_logger.LogError(message);
+				_logger.LogError($"Error while seeding the database: {ex.Message}");
 			}
 		}
 	}

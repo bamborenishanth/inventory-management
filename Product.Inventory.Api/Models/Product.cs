@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Product.Inventory.Api
+﻿namespace Product.Inventory.Api
 {
 	public class Product
 	{

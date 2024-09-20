@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Product.Inventory.Api
+﻿namespace Product.Inventory.Api
 {
 	public interface IProductService
 	{

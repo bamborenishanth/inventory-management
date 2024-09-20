@@ -8,7 +8,6 @@ namespace Product.Inventory.Api
 	public class ProductController : ControllerBase
 	{
 		private readonly IProductService _productService;
-		private bool _disposed = false; // Flag to check whether the object is already disposed
 
 		public ProductController(IProductService productService)
 		{
@@ -19,13 +18,7 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> GetAllProducts()
 		{
-			IEnumerable<Product> products = await _productService.GetAllProducts();
-
-			if (products == null)
-			{
-				return Ok(new List<Product>());
-			}
-
+			List<Product> products = await _productService.GetAllProducts();
 			return Ok(products);
 		}
 
@@ -33,7 +26,7 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> GetProductById(int productId)
 		{
-			var product = await _productService.GetProductById(productId);
+			Product product = await _productService.GetProductById(productId);
 			if (product == null)
 			{
 				return NotFound($"Product with id-{productId} doesn't exist");
@@ -86,7 +79,7 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> DeleteProduct(int productId)
 		{
-			var result = await _productService.DeleteProduct(productId);
+			bool result = await _productService.DeleteProduct(productId);
 			if (result)
 			{
 				return Ok("Product deleted successfully");
@@ -98,14 +91,14 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> AddStock(int productId, int quantity)
 		{
-			return await UpdateStock(productId, quantity, true).ConfigureAwait(false);
+			return await UpdateStock(productId, quantity, true);
 		}
 
 		[HttpPut("decrement-stock/{productId}/{quantity}")]
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> DecrementStock(int productId, int quantity)
 		{
-			return await UpdateStock(productId, quantity, false).ConfigureAwait(false);
+			return await UpdateStock(productId, quantity, false);
 		}
 
 		private async Task<IActionResult> UpdateStock(int productId, int quantity, bool addStock)
@@ -117,7 +110,6 @@ namespace Product.Inventory.Api
 			}
 
 			Product updatedProduct = await _productService.UpdateStock(productId, quantity, addStock);
-
 			if (updatedProduct != null)
 			{
 				return Ok(updatedProduct);
