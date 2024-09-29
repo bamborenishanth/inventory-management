@@ -2,9 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/Product.Inventory.Api/obj/
-/.vs/
-/Product.Inventory.Api/bin/
-/.vs/Product.Inventory/v17/.suo
-/Product.Inventory.Api.Test
-/Product.Inventory.Api
+
