@@ -82,4 +82,19 @@ This command starts the application, and you should see output in the terminal i
 - **PUT** `/api/products/decrement-stock/{productId}/{quantity}`: Decrements the stock for a specific product.
 
 
+## Enhancement
+
+First of all thanks for the opportunity and the feedback on this exercise. As part of feedback I have made few changes in the repository.
+
+- Migrated the project to .NET 8 from .NET 6.
+- Updated the Product context - removed field validation from DB.
+- Product model validation happens at code rather than in the database since it is expensive.
+- Fixed failing testcases.
+- Added Dockerfile for the microservice.
+- Cleaned .gitignore file.
+
+**Note:** There was a suggestion to use SQLite for the testcases, but SQLite doesn't support the sequences which I have used to generate the ProductId. So I had to continue using the in-memory DB for testing.
+ 
+
+
 

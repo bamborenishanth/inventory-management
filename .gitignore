@@ -3,3 +3,15 @@
 ################################################################################
 
 
+/.vs
+/Product.Inventory.Api/bin
+/Product.Inventory.Api/obj
+/Product.Inventory.Api/out
+/Product.Inventory.Api.Test/bin
+/Product.Inventory.Api.Test/obj/Debug
+/Product.Inventory.Api.Test/obj/Release/net6.0
+/Product.Inventory.Api.Test/obj/Product.Inventory.Api.Test.csproj.nuget.dgspec.json
+/Product.Inventory.Api.Test/obj/Product.Inventory.Api.Test.csproj.nuget.g.props
+/Product.Inventory.Api.Test/obj/Product.Inventory.Api.Test.csproj.nuget.g.targets
+/Product.Inventory.Api.Test/obj/project.assets.json
+/Product.Inventory.Api.Test/obj/project.nuget.cache
