@@ -10,8 +10,8 @@ namespace Product.Inventory.Api
 
 		public ProductRepository(ILogger<ProductRepository> logger, ProductContext dbContext)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+			_logger = logger;
+			_context = dbContext;
 		}
 
 		public async Task<List<Product>> GetAllAsync()
@@ -42,11 +42,6 @@ namespace Product.Inventory.Api
 
 		public async Task<bool> AddAsync(Product product)
 		{
-			if (product == null)
-			{
-				throw new ArgumentNullException(nameof(product));
-			}
-
 			try
 			{
 				await _context.Products.AddAsync(product).ConfigureAwait(false);
@@ -62,16 +57,13 @@ namespace Product.Inventory.Api
 
 		public async Task<Product> UpdateAsync(int productId, Product product)
 		{
-			if (product == null)
-			{
-				throw new ArgumentNullException(nameof(product));
-			}
-
 			try
 			{
 				_context.Products.Update(product);
 				await _context.SaveChangesAsync().ConfigureAwait(false);
-				return await GetByIdAsync(productId).ConfigureAwait(false);
+				var updatedProduct = await GetByIdAsync(productId).ConfigureAwait(false);
+
+				return updatedProduct;
 			}
 			catch (Exception ex)
 			{

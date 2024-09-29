@@ -6,7 +6,7 @@
 
 		public Task<Product> GetProductById(int productId);
 
-		public Task<bool> AddProduct(Product product);
+		public Task<bool> AddProduct(ProductDto product);
 
 		public Task<Product> UpdateProduct(int productId, ProductDto productDto);
 

@@ -8,88 +8,162 @@ namespace Product.Inventory.Api.Test
 	[TestClass]
 	public class ProductRepositoryTests
 	{
-		private ProductContext _dbContext;
+		private Mock<ILogger<ProductRepository>> _mockLogger;
+		private ProductContext _context;
 		private ProductRepository _productRepository;
 
 		[TestInitialize]
-		public void Initialize()
+		public void Setup()
 		{
 			var options = new DbContextOptionsBuilder<ProductContext>()
-				.UseInMemoryDatabase("ProductTestDb")
-				.Options;
+							.UseInMemoryDatabase(databaseName: "TestProductDb")
+							.Options;
 
-			_dbContext = new ProductContext(options);
-
-			var loggerMock = new Mock<ILogger<ProductRepository>>();
-			_productRepository = new ProductRepository(loggerMock.Object, _dbContext);
-
-			// Seed the database with some test data
-			_dbContext.Products.AddRange(
-				new Product { ProductId = 1, Name = "TestProduct 1", Quantity = 10 },
-				new Product { ProductId = 2, Name = "TestProduct 2", Quantity = 20 }
-			);
-			_dbContext.SaveChanges();
-		}
-
-		[TestMethod]
-		public async Task GetAllAsyncTest()
-		{
-			var products = await _productRepository.GetAllAsync();
-			Assert.IsNotNull(products);
-			Assert.AreEqual(2, products.Count);
-		}
-
-		[TestMethod]
-		public async Task GetByIdAsyncTest()
-		{
-			var product = await _productRepository.GetByIdAsync(1);
-			Assert.IsNotNull(product);
-			Assert.AreEqual(1, product.ProductId);
-		}
-
-		[TestMethod]
-		public async Task AddAsyncTest()
-		{
-			var newProduct = new Product { Name = "TestProduct 3", Quantity = 30 };
-			await _productRepository.AddAsync(newProduct);
-
-			var products = await _productRepository.GetAllAsync();
-			Assert.AreEqual(3, products.Count);
-			Assert.AreEqual(newProduct.Name, products.Last().Name);
-		}
-
-		[TestMethod]
-		public async Task UpdateAsyncTest()
-		{
-			var product = await _productRepository.GetByIdAsync(1);
-			product.Quantity = 50;
-			await _productRepository.UpdateAsync(product.ProductId, product);
-
-			var updatedProduct = await _productRepository.GetByIdAsync(1);
-			Assert.AreEqual(50, updatedProduct.Quantity);
-		}
-
-		[TestMethod]
-		public async Task DeleteByIdAsyncTest()
-		{
-			await _productRepository.DeleteByIdAsync(1);
-
-			var products = await _productRepository.GetAllAsync();
-			Assert.AreEqual(1, products.Count);
-			Assert.AreEqual(2, products.First().ProductId);
-		}
-
-		[TestMethod]
-		public async Task DeleteByIdAsyncFailureTest()
-		{
-			var result = await _productRepository.DeleteByIdAsync(999);
-			Assert.IsFalse(result);
+			_context = new ProductContext(options);
+			_mockLogger = new Mock<ILogger<ProductRepository>>();
+			_productRepository = new ProductRepository(_mockLogger.Object, _context);
 		}
 
 		[TestCleanup]
 		public void Cleanup()
 		{
-			_dbContext.Dispose();
+			_context.Database.EnsureDeleted();
+			_context.Dispose();
+		}
+
+		[TestMethod]
+		public async Task GetAllAsyncReturnsAllProducts()
+		{
+			// Arrange
+			_context.Products.AddRange(new Product { ProductId = 1, Name = "Product1" },
+											   new Product { ProductId = 2, Name = "Product2" });
+			await _context.SaveChangesAsync();
+
+			// Act
+			var result = await _productRepository.GetAllAsync();
+
+			// Assert
+			Assert.AreEqual(2, result.Count);
+			Assert.AreEqual("Product1", result[0].Name);
+		}
+
+		[TestMethod]
+		public async Task GetAllAsyncReturnsEmptyListWhenNoProductsExist()
+		{
+			// Act
+			var result = await _productRepository.GetAllAsync();
+
+			// Assert
+			Assert.AreEqual(0, result.Count);
+		}
+
+		[TestMethod]
+		public async Task GetByIdAsyncReturnsProductWhenIdIsFound()
+		{
+			// Arrange
+			Product product = new Product { ProductId = 1, Name = "Product1" };
+			_context.Products.Add(product);
+			await _context.SaveChangesAsync();
+
+			// Act
+			Product result = await _productRepository.GetByIdAsync(1);
+
+			// Assert
+			Assert.IsNotNull(result);
+			Assert.AreEqual("Product1", result.Name);
+		}
+
+		[TestMethod]
+		public async Task GetByIdAsyncReturnsNullWhenProductIdIsNotFound()
+		{
+			// Act
+			Product result = await _productRepository.GetByIdAsync(10);
+
+			// Assert
+			Assert.IsNull(result);
+		}
+
+		[TestMethod]
+		public async Task AddAsyncSucessTest()
+		{
+			// Arrange
+			Product product = new Product { ProductId = 3, Name = "Product3" };
+
+			// Act
+			bool result = await _productRepository.AddAsync(product);
+
+			// Assert
+			Assert.IsTrue(result);
+			Product? addedProduct = await _context.Products.FindAsync(3);
+			Assert.IsNotNull(addedProduct);
+			Assert.AreEqual("Product3", addedProduct.Name);
+		}
+
+		[TestMethod]
+		public async Task AddAsyncFailureTest()
+		{
+			// Act
+			Product invalidProduct = new Product();
+			bool result = await _productRepository.AddAsync(invalidProduct);
+
+			// Assert
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod]
+		public async Task UpdateAsyncSuccessTest()
+		{
+			// Arrange
+			Product product = new Product { ProductId = 1, Name = "OldProduct" };
+			_context.Products.Add(product);
+			await _context.SaveChangesAsync();
+
+			// Act
+			Product? existingProduct = await _context.Products.FindAsync(1);
+			existingProduct.Name = "UpdatedProduct";
+			Product result = await _productRepository.UpdateAsync(1, existingProduct);
+
+			// Assert
+			Assert.AreEqual("UpdatedProduct", result.Name);
+		}
+
+		[TestMethod]
+		public async Task UpdateAsyncFailureTest()
+		{
+			// Act
+			Product product = new Product { ProductId = 1, Name = "UpdatedProduct" };
+			Product updatedProduct = await _productRepository.UpdateAsync(1, product);
+
+			// Assert
+			Assert.IsNull(updatedProduct);
+		}
+
+
+		[TestMethod]
+		public async Task DeleteAsyncSuccessTest()
+		{
+			// Arrange
+			Product product = new Product { ProductId = 1, Name = "Product1" };
+			_context.Products.Add(product);
+			await _context.SaveChangesAsync();
+
+			// Act
+			var result = await _productRepository.DeleteByIdAsync(1);
+
+			// Assert
+			Assert.IsTrue(result);
+			Product? deletedProduct = await _context.Products.FindAsync(1);
+			Assert.IsNull(deletedProduct);
+		}
+
+		[TestMethod]
+		public async Task DeleteAsyncFailureTest()
+		{
+			// Act
+			var result = await _productRepository.DeleteByIdAsync(10);
+
+			// Assert
+			Assert.IsFalse(result);
 		}
 	}
 

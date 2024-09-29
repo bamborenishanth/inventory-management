@@ -4,11 +4,13 @@ namespace Product.Inventory.Api
 {
 	public class ProductService : IProductService
 	{
+		private readonly ILogger<ProductService> _logger;
 		private readonly IProductRepository _productRepository;
 		private readonly IMapper _mapper;
 
-		public ProductService(IProductRepository productRepository, IMapper mapper)
+		public ProductService(ILogger<ProductService> logger, IProductRepository productRepository, IMapper mapper)
 		{
+			_logger = logger;
 			_productRepository = productRepository;
 			_mapper = mapper;
 		}
@@ -25,9 +27,11 @@ namespace Product.Inventory.Api
 			return await _productRepository.GetByIdAsync(productId);
 		}
 
-		public async Task<bool> AddProduct(Product product)
+		public async Task<bool> AddProduct(ProductDto product)
 		{
-			return await _productRepository.AddAsync(product);
+			Product newProduct = new();
+			_mapper.Map(product, newProduct);
+			return await _productRepository.AddAsync(newProduct);
 		}
 
 		public async Task<Product> UpdateProduct(int productId, ProductDto productDto)
@@ -47,6 +51,11 @@ namespace Product.Inventory.Api
 			Product product = await GetProductById(productId).ConfigureAwait(false);
 			if (product != null)
 			{
+				if (addStock == false && product.Quantity - quantity < 0)
+				{
+					_logger.LogError("Product quantity cannot be less than 0");
+					return null;
+				}
 				product.Quantity = addStock ? product.Quantity + quantity : product.Quantity - quantity;
 				Product updatedProduct = await _productRepository.UpdateAsync(productId, product).ConfigureAwait(false);
 				return updatedProduct;

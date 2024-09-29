@@ -73,7 +73,7 @@ namespace Product.Inventory.Api.Test
 		public async Task AddProductTest()
 		{
 			// Arrange
-			var product = new Product { Name = "New Product", Price = 10, Quantity = 5 };
+			var product = new ProductDto { Name = "New Product", Price = 10, Quantity = 5 };
 			_mockProductService.Setup(service => service.AddProduct(product)).ReturnsAsync(true);
 
 			// Act
@@ -94,16 +94,32 @@ namespace Product.Inventory.Api.Test
 		}
 
 		[TestMethod]
+		public async Task UpdateProductTest()
+		{
+			// Arrange
+			ProductDto productDto = new ProductDto { Name = "updatedProduct1", Price = 100, Quantity = 10 };
+			Product product = new Product { ProductId = 1, Name = "updatedProduct1", Price = 100, Quantity = 10 };
+			_mockProductService.Setup(service => service.GetProductById(It.IsAny<int>())).ReturnsAsync(product);
+			_mockProductService.Setup(service => service.UpdateProduct(It.IsAny<int>(), It.IsAny<ProductDto>())).ReturnsAsync(product);
+
+			// Act
+			var result = await _controller.UpdateProduct(1, productDto);
+
+			// Assert
+			Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+		}
+
+		[TestMethod]
 		public async Task UpdateProductWithWrongIdTest()
 		{
 			// Arrange
-			var product = new ProductDto { ProductId = 1, Name = "Product1" };
+			var product = new ProductDto { Name = "Product2" };
 
 			// Act
-			var result = await _controller.UpdateProduct(2, product);
+			var result = await _controller.UpdateProduct(1, product);
 
 			// Assert
-			Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+			Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
 		}
 
 		[TestMethod]
@@ -132,24 +148,24 @@ namespace Product.Inventory.Api.Test
 			Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
 		}
 
-		//[TestMethod]
-		//public async Task UpdateStockTest()
-		//{
-		//	// Arrange
-		//	var product = new Product { ProductId = 1, Quantity = 10 };
-		//	_mockProductService.Setup(service => service.GetProductById(It.IsAny<int>())).ReturnsAsync(product);
-		//	_mockProductService.Setup(service => service.UpdateStock(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(product);
+		[TestMethod]
+		public async Task UpdateStockTest()
+		{
+			// Arrange
+			var product = new Product { ProductId = 1, Quantity = 10 };
+			_mockProductService.Setup(service => service.GetProductById(It.IsAny<int>())).ReturnsAsync(product);
+			_mockProductService.Setup(service => service.UpdateStock(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>())).ReturnsAsync(product);
 
 
-		//	// Act
-		//	var result = await _controller.AddStock(1, 5);
+			// Act
+			var result = await _controller.AddStock(1, 5);
 
-		//	// Assert
-		//	var okResult = result as OkObjectResult;
-		//	Assert.IsNotNull(okResult);
-		//	var returnValue = okResult.Value as Product;
-		//	Assert.AreEqual(1, returnValue.ProductId);
-		//	Assert.AreEqual(10, returnValue.Quantity);
-		//}
+			// Assert
+			var okResult = result as OkObjectResult;
+			Assert.IsNotNull(okResult);
+			var returnValue = okResult.Value as Product;
+			Assert.AreEqual(1, returnValue.ProductId);
+			Assert.AreEqual(10, returnValue.Quantity);
+		}
 	}
 }

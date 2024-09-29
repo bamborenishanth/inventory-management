@@ -26,26 +26,6 @@ namespace Product.Inventory.Api
 			modelBuilder.Entity<Product>()
 				.Property(p => p.ProductId)
 				.HasDefaultValueSql("nextval('product_id_seq')");
-
-			modelBuilder.Entity<Product>()
-				.Property(p => p.Name)
-				.IsRequired()
-				.HasMaxLength(20);
-
-			modelBuilder.Entity<Product>()
-				.Property(p => p.Description)
-				.HasMaxLength(100);
-
-			modelBuilder.Entity<Product>()
-				.Property(p => p.Quantity)
-				.HasDefaultValue(1);
-
-			modelBuilder.Entity<Product>()
-				.HasCheckConstraint("CK_Product_Quantity_NonNegative", "Quantity >= 0");
-
-			modelBuilder.Entity<Product>()
-				.Property(p => p.Price)
-				.HasColumnType("decimal(10,2)");
 		}
 	}
 

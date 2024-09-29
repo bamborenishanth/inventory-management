@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -15,7 +17,8 @@ namespace Product.Inventory.Api.Test
 		{
 			_mockRepository = new Mock<IProductRepository>();
 			var mapperMock = new Mock<IMapper>();
-			_productService = new ProductService(_mockRepository.Object, mapperMock.Object);
+			var loggerMock = new Mock<ILogger<ProductService>>();
+			_productService = new ProductService(loggerMock.Object, _mockRepository.Object, mapperMock.Object);
 		}
 
 		[TestMethod]
@@ -80,7 +83,7 @@ namespace Product.Inventory.Api.Test
 		public async Task AddProductTest()
 		{
 			// Arrange
-			Product product = new Product { ProductId = 100003, Name = "TestProduct 3" };
+			ProductDto product = new ProductDto { Name = "TestProduct 3" };
 
 			_mockRepository.Setup(r => r.AddAsync(It.IsAny<Product>())).ReturnsAsync(true);
 
@@ -93,7 +96,7 @@ namespace Product.Inventory.Api.Test
 		public async Task AddProductFailureTest()
 		{
 			// Arrange
-			Product product = new Product { ProductId = 100003, Name = "TestProduct 3" };
+			ProductDto product = new ProductDto { Name = "TestProduct 3" };
 			_mockRepository.Setup(r => r.AddAsync(It.IsAny<Product>())).ReturnsAsync(false);
 
 			// Act
@@ -107,7 +110,7 @@ namespace Product.Inventory.Api.Test
 		public async Task UpdateProductTest()
 		{
 			// Arrange
-			ProductDto productDto = new ProductDto { ProductId = 100002, Name = "Updated TestProduct 2" };
+			ProductDto productDto = new ProductDto { Name = "Updated TestProduct 2" };
 			Product existingProduct = new Product { ProductId = 100002, Name = "TestProduct 2" };
 			Product updatedProduct = new Product { ProductId = 100002, Name = "Updated TestProduct 2" };
 
@@ -123,7 +126,7 @@ namespace Product.Inventory.Api.Test
 		public async Task UpdateProductFailureTest()
 		{
 			// Arrange
-			ProductDto productDto = new ProductDto { ProductId = 100002, Name = "Updated TestProduct 2" };
+			ProductDto productDto = new ProductDto { Name = "Updated TestProduct 2" };
 			_mockRepository.Setup(r => r.UpdateAsync(It.IsAny<int>(), It.IsAny<Product>())).ReturnsAsync((Product)null);
 			_mockRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((Product)null);
 

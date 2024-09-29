@@ -36,14 +36,21 @@ namespace Product.Inventory.Api
 
 		[HttpPost]
 		[MapToApiVersion("1.0")]
-		public async Task<IActionResult> AddProduct([FromBody] Product product)
+		public async Task<IActionResult> AddProduct([FromBody] ProductDto productDto)
 		{
-			if (product == null)
+			if (productDto == null)
 			{
 				return BadRequest("Product cannot be null");
 			}
 
-			bool result = await _productService.AddProduct(product);
+			if (!ModelState.IsValid)
+			{
+				List<string> errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+
+				return BadRequest(errors);
+			}
+
+			bool result = await _productService.AddProduct(productDto);
 			if (result)
 			{
 				return Ok("Product added successfully");
@@ -55,9 +62,16 @@ namespace Product.Inventory.Api
 		[MapToApiVersion("1.0")]
 		public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductDto productDto)
 		{
-			if (productDto == null || productId != productDto.ProductId)
+			if (productDto == null)
 			{
-				return BadRequest("Product Id mismatch");
+				return BadRequest("Product cannot be null");
+			}
+
+			if (!ModelState.IsValid)
+			{
+				List<string> errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+
+				return BadRequest(errors);
 			}
 
 			Product existingProduct = await _productService.GetProductById(productId);

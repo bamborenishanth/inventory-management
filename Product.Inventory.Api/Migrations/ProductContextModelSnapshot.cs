@@ -10,61 +10,58 @@ using Product.Inventory.Api;
 
 namespace Product.Inventory.Api.Migrations
 {
-    [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
+	[DbContext(typeof(ProductContext))]
+	partial class ProductContextModelSnapshot : ModelSnapshot
+	{
+		protected override void BuildModel(ModelBuilder modelBuilder)
+		{
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.33")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+			modelBuilder
+				.HasAnnotation("ProductVersion", "8.0.8")
+				.HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+			NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.HasSequence<int>("product_id_seq")
-                .StartsAt(100000L)
-                .HasMin(100000L)
-                .HasMax(999999L)
-                .IsCyclic();
+			modelBuilder.HasSequence<int>("product_id_seq")
+				.StartsAt(100000L)
+				.HasMin(100000L)
+				.HasMax(999999L)
+				.IsCyclic();
 
-            modelBuilder.Entity("Product.Inventory.Api.Product", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValueSql("nextval('product_id_seq')");
+			modelBuilder.Entity("Product.Inventory.Api.Product", b =>
+				{
+					b.Property<int>("ProductId")
+						.ValueGeneratedOnAdd()
+						.HasColumnType("integer")
+						.HasDefaultValueSql("nextval('product_id_seq')");
 
-                    b.Property<string>("Category")
-                        .HasColumnType("text");
+					b.Property<string>("Category")
+						.HasMaxLength(50)
+						.HasColumnType("character varying(50)");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+					b.Property<string>("Description")
+						.HasMaxLength(500)
+						.HasColumnType("character varying(500)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+					b.Property<string>("Name")
+						.IsRequired()
+						.HasMaxLength(100)
+						.HasColumnType("character varying(100)");
 
-                    b.Property<decimal?>("Price")
-                        .HasColumnType("numeric(10,2)");
+					b.Property<decimal?>("Price")
+						.HasColumnType("decimal(18, 2)");
 
-                    b.Property<int?>("Quantity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
+					b.Property<int?>("Quantity")
+						.HasColumnType("integer");
 
-                    b.Property<decimal?>("Rating")
-                        .HasColumnType("numeric");
+					b.Property<decimal?>("Rating")
+						.HasColumnType("numeric");
 
-                    b.HasKey("ProductId");
+					b.HasKey("ProductId");
 
-                    b.ToTable("Products");
-
-                    b.HasCheckConstraint("CK_Product_Quantity_NonNegative", "Quantity >= 0");
-                });
+					b.ToTable("Products");
+				});
 #pragma warning restore 612, 618
-        }
-    }
+		}
+	}
 }
